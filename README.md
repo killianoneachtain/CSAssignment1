@@ -27,4 +27,4 @@ Develop a "menu driven" shell program that will allow the user to interactively 
 add, remove), search and list all their business contacts information, which is stored locally
 in a file called BusinessDetails.
 
-See Assignment1.pdf
+See Assignment-Specification.pdf
