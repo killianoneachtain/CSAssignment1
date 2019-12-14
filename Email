@@ -1,0 +1,85 @@
+#!/bin/bash
+# Author : Killian O'Neachtain (20023634)
+# Date : 04/10/2019
+# This script will allow as user to compose an email to send to one/all
+# recipient. The search will use BusinessDetails file as the search focus.
+# The CC: option is available for non-file entries.
+
+. ./colours
+
+. ./functions
+
+ok=0
+
+while [ $ok = "0" ]; do
+  echo
+  echo $grn"Welcome to Email : ${USER^}"$wht
+  echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  echo " 1. Send Email to "$grn"One"$wht
+  echo " 2. Send Email to "$grn"All Contacts"$wht
+  echo " 3. "$grn"Check"$wht" Email"
+  echo " 4. "$red"EXIT"$wht
+  echo "~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  echo
+  read -t45 -p "Please enter your choice from Menu : " emailChoice || emailChoice=4
+
+
+  case $emailChoice in
+  1)
+	echo
+	echo "Send Email to "$ltgrn"ONE"$wht
+	echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+
+	attachFile=0
+	emailOk=0
+
+	while [ $emailOk = "0" ]; do
+
+	   ok=0
+	   while [ $ok = "0" ];
+	   do
+	      read -t90 -p "Email Search  : " email || email="me@you.com"
+	      nullEntered $email
+           done
+
+	   ok=0
+	   while [ $ok = "0" ];
+	   do
+		checkRecordsForEmail $email
+		echo
+	   done
+
+	   ok=0
+	   while [ $ok = 0 ];
+	   do
+		echo
+		attachFile
+	    done
+	done
+
+	echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+        echo " "$red"<CTRL + D>"$wht" to EXIT mail body."
+        echo
+
+	attachChoice $attachFile $chosenEmail $fileLoc
+
+	break;;
+  2)
+	echo "Send Email to "$ltgrn"ALL"$wht
+	echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+	sendEmailToAll
+	echo
+	echo "You are sending to "$red"ALL CONTACTS"$wht
+	echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+	echo " <CTRL + D> To EXIT"
+	mail "$combined";;
+  3)
+	echo $grn"Checking Email"$wht
+	echo
+	mail;;
+  4)
+	echo $red"Exit to Main Menu"$wht
+	echo
+	ok=1;;
+  esac
+done

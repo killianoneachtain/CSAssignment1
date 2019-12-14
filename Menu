@@ -1,0 +1,72 @@
+#!/bin/bash
+# Author : Killian O'Neachtain (20023634)
+# This script will set up and menu from which the application will be driven
+
+# Call of the "colours" script that contains text display colour references
+. ./colours
+
+# Call of the "functions" script that contains all the functions available to
+# the program. Having a functions file allows multiple programs/scripts
+# access to functions.
+. ./functions
+
+loopMenu=0
+
+while [ $loopMenu = "0" ] ; do
+echo
+echo $ltblu "Welcome ${USER^}." $wht
+echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+echo "Please choose ONE of the following :"
+echo
+echo "	1. "$cyn"Add"$wht" a New Business"
+echo "	2. "$blu"Remove"$wht" Existing Business(es)"
+echo "	3. "$ltyel"Search"$wht" for a Business"
+echo "	4. "$grn"E-mail"$wht" Business(es)"
+echo "	5. "$red"EXIT"$wht
+echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+echo
+
+# This read prompts the user to enter a number on a timer of 120 seconds
+# If there is no input the default value of '5' is applied
+read -t120 -p "Enter a Number "$grn"(1 - 5) : "$wht choice || choice=5
+
+case $choice in
+1)
+#	If '1' is chosen then the AddBiz script is run
+#	When the script is finished running the main menu is displayed
+	. ./AddBiz
+	loopMenu=0;;
+2)
+#       If '2' is chosen then the RmBiz script is run
+#       When the script is finished running the main menu is displayed
+
+	. ./RmBiz
+	loopMenu=0;;
+3)
+#       If '3' is chosen then the FindBiz script is run
+#       When the script is finished running the main menu is displayed
+
+	. ./FindBiz
+	loopMenu=0;;
+4)
+#       If '4' is chosen then the Email script is run
+#       When the script is finished running the main menu is displayed
+
+	. ./Email
+	loopMenu=0;;
+5)
+#       If '5' is chosen the program exits with a message displayed
+	echo
+	echo $red"Thank you, ${USER^}. Goodbye!"
+	echo
+	exit 0;;
+*)
+#       If an invalid character is entered a message is displayed 
+#       When the script is finished running the main menu is displayed
+	echo
+	echo "Please Choose a "$red"Valid"$wht" number, ${USER^}! "$grn"(1 - 5)"$wht
+	loopMenu=0;;
+
+esac
+
+done

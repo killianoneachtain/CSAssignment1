@@ -1,0 +1,175 @@
+#!/bin/bash
+# Author : Killian O'Neachtain (20023634)
+# This script will add business details to the Address Book file
+
+. ./functions
+
+ok=0
+addBiz=0
+
+while [ $addBiz = "0" ]; do
+
+  echo
+  echo $cyn"Add New Business"$wht
+  echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  echo
+
+  while [ $ok = "0" ]; do
+    read -t90 -p $cyn"Business Name: "$wht compName
+    nullEntered $compName
+  done
+
+  echo
+
+  ok=0
+  while [ $ok = "0" ]; do
+    read -t90 -p $cyn"Contact (First and Last Name) : "$wht contFirstName contLastName
+	nullEntered $contFirstName
+        lettersOnly $contFirstName
+	nullEntered $contLastName
+	lettersOnly $contLastName
+
+	if [ -z $contFirstName ] || [ -z $contLastName ];
+	then
+  	  echo
+  	  echo $ltred"Both name fields (FIRSTNAME SURNAME) need to be completed."
+  	  echo "Please try again!"$wht
+  	  echo
+  	  ok=0
+	else
+	  contactName=$contFirstName" "$contLastName
+	fi
+  done
+
+  echo
+
+  ok=0
+  while [ $ok = "0" ]; do
+    read -t90 -p $cyn"Address Line 1 : "$wht addLn1
+    nullEntered $addLn1
+  done
+
+  echo
+
+  # This field can be left NULL
+  read -t90 -p $cyn"Address Line 2(OPTIONAL): "$wht addLn2
+
+  echo
+
+  ok=0
+  while [ $ok = "0" ]; do
+    read -t90 -p $cyn"Town / City : "$wht city
+      nullEntered $city
+      lettersOnly $city
+  done
+
+  echo
+
+  ok=0
+  while [ $ok = "0" ]; do
+    read -t90 -p $cyn"County / State : "$wht county
+      nullEntered $county
+      lettersOnly $county
+  done
+
+  echo
+
+  # This field may be left NULL
+  ok=0
+  while [ $ok = "0" ]; do
+    read -t90 -p $cyn"Eircode(OPTIONAL) : "$wht postCode
+    if [ -z $postCode ]
+    then
+	ok=1
+    else
+    	checkEirCode $postCode
+    fi
+  done
+
+  address=$addLn1","$addLn2","$city","$county","$postCode
+
+  ok=0
+  while [ $ok = "0" ]; do
+    echo
+    echo $cyn"Contact Phone Number : "$wht
+
+    read -t90 -p $cyn"Area Code : "$wht areaCode
+
+    checkAreaCode $areaCode
+
+  done
+
+  echo
+
+  telephoneNumber
+
+  contactNumber=$areaCode$telNum
+
+  ok=0
+
+  while [ $ok = "0" ]; do
+  echo
+  read -t90 -p $cyn"Email Address : "$wht email || email=me@you.com
+    checkEmail $email
+  done
+
+  echo
+  echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  echo "Company : "$ltgrn"$compName"$wht
+  echo "Contact Name : "$ltgrn"$contactName"$wht
+  echo "Address : "$ltgrn"$address"$wht
+  echo "Telephone Number : "$ltgrn"$contactNumber"$wht
+  echo "E-mail : "$ltgrn"$email"$wht
+  echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  echo
+
+  cwd=$(pwd)
+  FILE=$cwd/BusinessDetails
+  if ! ( test -f "$FILE" ) then
+	touch BusinessDetails
+	chmod 755 BusinessDetails
+  fi
+
+  ok=0
+  while [ $ok = "0" ]; do
+  checkForDuplicate "$compName" "$contactName" "$address" "$contactNumber" "$email" BusinessDetails
+  duplicateResponse=$?
+
+  if [ $duplicateResponse = "1" ]
+  then
+	echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+	echo $red"DUPLICATE FOUND"
+	echo
+	echo $red"BUSINESS NOT ADDED TO DATABASE"$wht
+	echo $wht"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+	ok=1
+	addBiz=1
+  fi
+	ok=1
+  done
+
+  if [ $addBiz = "0" ]
+  then
+    echo "Do you want to Add this business to your database?"
+    select yn in "Yes" "No"; do
+      case $yn in
+      Yes)
+	  now=$(date +'%m/%d/%Y/%T') 
+          echo $compName-$contactName-$address-$contactNumber-$email-"${USER}"-"${now}" >>BusinessDetails;
+	  echo
+	  echo $grn"Successfully Added to DATABASE : BusinessDetails"$wht
+	  echo
+	  ok=1
+	  addBiz=1
+	  break;;
+      No)
+	  echo
+	  echo $red"Not Added To DATABASE : BusinessDetails"$wht
+	  ok=1
+	  addBiz=1
+    	  break;;
+      esac
+    done
+  fi
+
+done

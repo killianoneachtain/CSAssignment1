@@ -1,0 +1,14 @@
+#!/bin/bash
+# Author : Killian O'Neachtain (20023634)
+# Colour codes for use in script
+
+red=$'\e[0;31m'
+grn=$'\e[1;32m'
+blu=$'\e[1;34m'
+mag=$'\e[1;35m'
+cyn=$'\e[1;36m'
+wht=$'\e[0m'
+ltyel=$'\e[1;93m'
+ltblu=$'\e[1;94m'
+ltgrn=$'\e[1;92m'
+ltred=$'\e[1;31m'

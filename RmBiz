@@ -1,0 +1,81 @@
+#!/bin/bash
+# Author : Killian O'Neachtain (20023634)
+# This script will remove a business from the BusinessDetails, based on
+# a particular business name or contact name.
+
+# Calls the functions script which allows this script to make function calls
+# to specific functions in specifiied 'functions' script
+. ./functions
+
+remBiz=0
+
+while [ $remBiz = "0" ]; do
+
+  echo
+  echo "Delete a "$blu"Business"$wht
+  echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  echo "1. Delete by "$blu"Business"$wht" Name"
+  echo "2. Delete by "$blu"Contact "$wht" Name"
+  echo "3. "$red"EXIT to Main Menu"$wht
+  echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  echo
+
+# This read is time limited to 60 seconds and if there is no input, the 
+# default value of '3' is inserted, which will exit to main menu.
+
+  read -t60 -p "Please choose an option from menu : " delChoice || delChoice=3
+
+  case $delChoice in
+  1)
+	ok=0
+	while [ $ok = "0" ]; do
+	echo
+	IFS= read -r -t60 -p "Please Enter the Name of the Business you would like to remove : " business
+
+	nullEntered $business
+
+	if [ $ok = "1" ]
+   	  then
+	    searchDisplay "$business" 1
+
+            deleteMultipleRecords "$lineNumbers" BusinessDetails
+	fi
+
+	done;;
+
+  2)
+	ok=0
+	while [ $ok = 0 ]; do
+	echo
+	IFS= read -r -t60 -p "Please Enter the Name of the Contact you would like to remove : " contact
+
+	nullEntered $contact
+
+	if [ $ok = "1" ]
+	  then
+	    searchDisplay "$contact" 2
+	    echo
+	    deleteMultipleRecords "$lineNumbers" BusinessDetails
+
+	fi
+
+	done;;
+
+  3)
+# 	If '3' is entered, the script is completed and the program will return to the 
+#	menu script/ display main menu.
+	echo
+	echo $red"Exiting Delete Menu"$wht
+	echo
+	remBiz=1;;
+
+  *)
+#	If user enters an invalid character/choice then this will prompt the user
+# 	to input a valid choice. Loops until a correct choice is entered
+	echo
+	echo "Please Enter a "$red"Valid"$wht" number, ${USER^}! "$grn"(1 or 2)"$wht
+	remBiz=0;;
+
+  esac
+
+done

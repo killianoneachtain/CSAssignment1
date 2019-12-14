@@ -1,0 +1,614 @@
+#!/bin/bash
+# Author : Killian O'Neachtain (20023634)
+# This executable file contains a library of functions to be shared among
+# scripts.
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This calls the 'colours' script for use to display colour text to user.
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+. ./colours
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Function to check the validity of the email entered. This will only check
+# that characters conform to a genreal format of 'me@you.com'. It will not
+# check if the actual email exists on a server. If the string entered fails
+# the check, the user is asked to enter a valid format of an email address.
+#
+# Arguments:  $1 = String entered by user
+#
+# ref: stackoverflow.com/questions/48014738/how-to-validate-email-id-using-bash-script
+#
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+checkEmail() {
+
+if [[ "$1" =~ [a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]{2,15}+\.[a-zA-Z]{2,10} ]];
+then
+        ok=1
+else
+	echo
+ 	echo $ltred"INVALID ! : Please enter a valid email address"$wht
+	echo "(Format : me@you.com)"
+	ok=0
+fi
+}
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This function will check the format of Eircode to be 
+# "A19A1A9" / Letter Digit Digit Letter Digit Letter Digit
+# The one exception of 'D6W' is allowed.
+#
+# Arguments:  $1 = String entered by user
+#
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+checkEirCode() {
+
+# If $1 is NULL, then we exit the function as EirCode is optional
+if [ -z $1 ]
+then
+        ok=1
+fi
+
+# Check the EirCode is in a specific format of 'A11A1A1' as specified
+# by the EirCode authority. 
+if [[ $1 =~ ^[A-Z][0-9][0-9][A-Z][0-9][A-Z][0-9]$ ]]
+then
+	ok=1
+# Exception to the rule is the 'D6W' prefix
+elif [[ $1 =~ ^[D][6][W][A-Z][0-9][A-Z][0-9]$ ]]
+then
+	ok=1
+else
+	echo
+	echo "EirCode needs to in Format "$red"'A12B3C4'."$wht
+	echo
+fi
+
+}
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This function ensures AreaCode is accepted as as 2 to 4
+# digit number. It also does not accept '088' as an area
+# code.
+#
+# Arguments:  $1 = String entered by user
+# Returns : Ensures the string entered is a valid Area Code 
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+checkAreaCode() {
+
+validNum='0-9'
+
+if [ ${#1} -gt 4 ]
+  then
+    echo $ltred"ERROR: Too Long - 4 digits MAX "$wht
+  elif [ ${#1} -lt 2 ]
+  then
+    echo $ltred"ERROR: Too Short - 2 digits MIN"$wht
+  elif [ $1 = "088" ]
+  then
+    echo $ltred"ERROR: "$1" is an invalid area code."$wht
+  elif [[ $1 =~ [^$validNum] ]]
+  then
+    echo $red"ERROR!"$wht" Only digits (0-9) allowed." 
+  else
+    ok=1
+fi
+}
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This functions takes in a 6-8 digit telephone number.
+# It will display error results to the user, if any
+# errors are entered.
+# ref:stackoverflow.com/questions/25990748/only-allow-numbers-from-standart-input-read
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+telephoneNumber() {
+
+ok=0
+telNum=0
+  while [ $ok = "0" ]; do
+    while [[ ! $telNum =~ ^[0-9]{6,7} ]]; do
+      read -t90 -p $cyn"Telephone Number : "$wht telNum
+        if  [ ${#telNum} -gt 7 ] || [ ${#telNum} -lt 5 ]
+        then
+           echo $ltred"ERROR : Phone Number must be 5, 6 or 7 digits."$wht
+           ok=0 
+        elif [[ $telNum =~ [^$validNum] ]]
+        then
+           echo $red"ERROR! Only digits (0 - 9) allowed."$wht
+           ok=0
+        else
+           ok=1
+        fi
+    done
+  done
+}
+
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This function ensures NULL is not accepted as input.
+#
+# Arguments:  $1 = String entered by user
+# Returns : 0 / 1 - True/False to 'ok' variable
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+nullEntered() {
+if [ -z "$1" ] ;
+  then
+    echo $ltred"There was no input, ${USER^}!"$wht
+    echo
+    ok=0
+  else
+    ok=1
+fi
+}
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This function ensures only digits are accepted at a input prompt.
+# The values range from 0-9.
+#
+# Arguments:  $1 = String entered by user
+# Returns : 0 / 1 - True/False to 'ok' variable
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+numbersOnly() {
+if ! [[ $1 =~ ^[0-9]+$ ]];
+  then
+    ok=0
+    echo $ltred"No characters allowed in this field."$wht
+  else
+    ok=1
+fi
+}
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This function ensures only letters are accepted at a input prompt.
+# The values range from a-z and A-Z.
+#
+# Arguments:  $1 = String entered by user
+# Returns : 0 / 1 - True/False to 'ok' variable
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+lettersOnly() {
+if ! [[ $1 =~ ^[A-Za-z]+$ ]];
+  then
+    ok=0
+    echo $ltred"No digits allowed in this field."$wht
+  else
+    ok=1
+fi
+}
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# TO CHECK FOR DUPLICATE RECORDS
+# Function checks all records in business details against data entered from user.
+# Each line is 'cut' into fields delimited by a '-'. These fields correspond with
+# the data we are comparing the stored data against.
+# The 'checks' variable is a counter which is incremented if both fields match.
+# If all fields match, 'checks' will be '5' and so returns 1, indicating duplicate
+# entry was found.
+#
+# Arguments:  $1 -$5 = Business details entered by user
+#			(businessName, contactName, address, contactNumber, emailAddress)
+#		$6   = File name to be processed
+#
+# Returns : 1 - If a duplicate line/record is found
+#
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+checkForDuplicate() {
+
+while read in
+do
+checks=0
+
+A="$(cut -d'-' -f1 <<<"$in")"
+if [[ "$A" == "$1" ]]
+then
+	let "checks=checks+1"
+fi
+
+B="$(cut -d'-' -f2 <<<"$in")"
+if [[ "$B" == "$2" ]]
+then
+	let "checks=checks+1"
+fi
+
+C="$(cut -d'-' -f3 <<<"$in")"
+if [[ "$C" == "$3" ]]
+then
+	let "checks=checks+1"
+fi
+
+D="$(cut -d'-' -f4 <<<"$in")"
+if [[ "$D" == "$4" ]]
+then
+	let "checks=checks+1"
+fi
+
+E="$(cut -d'-' -f5 <<<"$in")"
+if [[ "$E" == "$5" ]]
+then
+	let "checks=checks+1"
+fi
+
+if [ $checks == "5" ]
+then
+	return 1
+fi
+done < $6
+}
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This function will take line numbers as input and output the corresponding
+# records in the format chosen. It reads input of multiple lines, line by line
+# and shows clear results in table.
+#
+# Arguments : $1 - An array containing line numbers
+# Echo : display table for each entry the corresponding line numbers
+#
+# L : Variable containing the contents of the 'awk' command. The array is read, delimited
+# by ' ', and stored, one per read,  in a local variable 'num'. The awk statement uses this
+# number to return the contents of that particular line in BusinessDetails to 'L'.
+#
+# 'L' is then passed into another read method where the contents of the line are
+# displayed to the user. Each field is delimited(-d) by '-'.
+#
+# ref: stackoverflow.com/questions/13939038/how-do-you-run-a-command-for-each-line-of-a-file
+#
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+useLineNumToReadRecords() {
+
+while read in;
+do
+
+   L="$(awk -v num="$in" '{if(NR==num) print $0}' BusinessDetails <<<"$in")"
+
+   echo "RECORD NUMBER : "$ltred"$in"$wht
+	while read in;
+	do
+	echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+	A="$(cut -d'-' -f1 <<<"$in")"
+	echo "Company : "$ltgrn"$A"$wht
+	B="$(cut -d'-' -f2 <<<"$in")"
+	echo "Contact Name : "$ltgrn"$B"$wht
+	C="$(cut -d'-' -f3 <<<"$in")"
+	echo "Address : "$ltgrn"$C"$wht
+	D="$(cut -d'-' -f4 <<<"$in")"
+	echo "Telephone Number : "$ltgrn"$D"$wht
+	E="$(cut -d'-' -f5 <<<"$in")"
+	echo "E-mail : "$ltgrn"$E"$wht; 
+	done <<<"$L"
+    echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    echo
+    done <<<$1
+}
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Function to enable searching by specific field of record and
+# return results of search to the user.
+#
+# This function calls the 'justField' function, using $2 as a parameter.
+#
+# This function calls the function 'useLineNumToReadRecords' to display
+# results to the user, using 'lineNumbers' variable as a parameter.
+#
+# Arguments : $1 - Query inputted by user
+#	      $2 - Field number to be used as search field
+#			1. Business Name
+#			2. Contact Name
+#			3. Address
+#			4. Telephone Number
+# 			5. Email address
+#
+# Return : Displays number of records matched to user, and also displays
+# each individual record using 'useLineNumToReadRecords' function.
+#
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+searchDisplay() {
+
+fieldOnly=$(justField $2)
+
+fieldOnlyResult=$(grep -i -n "$1" <<< "$fieldOnly")
+
+echo
+echo $grn$(echo "$fieldOnlyResult" | grep -c -i "$1")$wht "records match your query : " "$1"
+echo
+
+lineNumbers=$(grep -i -n "$1" <<< "$fieldOnly" | cut -d: -f1)
+
+if ! [ -z "$lineNumbers" ]
+then
+	useLineNumToReadRecords "$lineNumbers" | more -27
+else
+	ok=0
+fi
+}
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Function to return search query on specific field. The awk read is delimited
+# by the - character, as per records in BusinessDetails file.
+#
+# Arguments : $1 - The field number to be returned. (See 'searchDisplay' notes)
+#
+# Returns all the values of the chosen field in specified file
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+justField() {
+fieldOnly=$(awk -F "-" '{print $'$1'}' BusinessDetails)
+echo "$fieldOnly"
+}
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Function to check if a passed argument is contained in a local array.
+# http://stackoverflow.com/questions/3685970/check-if-a-bash-array-contains-a-value
+# Arguments : $1 - the variable to search the array by
+#
+# Return 0 = true / 1 = false
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+containsLineNumbers() {
+  local e match="$1"
+  shift
+  for e; do [[ "$e" == "$match" ]] && return 0; done
+  return 1
+}
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Function to display records in a table style displaying field values.
+# It can read in multiple records and display a business
+# card for each individual record. 
+#
+# Arguments : $1 - The line/record(s) to be displayed in table
+#
+# Returns : Table displaying record with fields delimited by '-'.
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+displayRecord() {
+while read in;
+do
+echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+A="$(cut -d'-' -f1 <<<"$in")"
+echo "Company : "$ltgrn"$A"$wht
+B="$(cut -d'-' -f2 <<<"$in")"
+echo "Contact Name : "$ltgrn"$B"$wht
+C="$(cut -d'-' -f3 <<<"$in")"
+echo "Address : "$ltgrn"$C"$wht
+D="$(cut -d'-' -f4 <<<"$in")"
+echo "Telephone Number : "$ltgrn"$D"$wht
+E="$(cut -d'-' -f5 <<<"$in")"
+echo "E-mail : "$ltgrn"$E"$wht;
+done <<< $1
+echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+echo
+}
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Function to delete a particular record/line from a file.
+# It displays the record/line numbers that are eligible for deletion, stores
+# them in an array/variable and checks that the number entered by the user
+# is an element of that array. If it is not eligible for deletion, the user
+# will get an error message, along with the eligible line numbers and asked
+# to select again.
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+deleteRecord() {
+deleteCount=0
+echo "The Business record Numbers are : " $red $1 $wht
+echo
+IFS= read -t30 -p "Which record number(s) would you like to delete? : " lineNum
+
+array=($1)
+
+deleteArray=("$lineNum")
+
+for i in ${deleteArray[@]}
+do
+containsLineNumbers "$i" "${array[@]}"
+inResponse=$?
+
+    if [ $inResponse = "0" ];
+      then
+	actualLine=$((i - deleteCount))
+
+	echo
+        echo "The line number to be "$red"DELETED"$wht" is " $i
+	echo
+
+	recordToBeDeleted=$(sed "${actualLine}q;d" $2)
+
+        displayRecord "$recordToBeDeleted"
+
+	read -t60 -p "Are you sure to delete? ( y / n) :  " delConfirm || delConfirm=n
+
+	case $delConfirm in
+        [Yy]*)
+	 	sed -i "$actualLine"'d' $2
+        	inResponse=1
+         	echo "Record Number : "$ltgrn"$actualLine"$wht"  | Status : " $red"DELETED"$wht
+         	echo
+	 	let "deleteCount=deleteCount+1"
+	 	ok=1
+         	inResponse=1;;
+        [Nn]*)
+            	echo $mgn"Record Number : "$grn"$i"$mgn" | Status : " $grn"NOT DELETED"$wht
+            	inResponse=0;;
+        esac
+     else
+	echo
+        echo $red"The number entered is not a valid line number"
+        echo
+        inResponse=0
+        fi
+done
+}
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Function to remove multiple records from a file/database
+# 
+#
+#
+# deleteMultipleRecords arg1 variable (array of line numbers)($lineNumbers)
+# g2 file (BusinessDetails)
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+deleteMultipleRecords() { 
+        if ! [ -z "$1" ]
+        then
+          read -t20 -p $cyn"DELETE a business from your records? (y / n) :  "$wht answer || answer=n
+          echo
+
+          case $answer in
+          [Yy]*)
+                inResponse=0
+                while [ $inResponse = "0" ]; do
+                echo
+                        deleteRecord "$1" $2
+                done;;
+          [Nn]*)
+                        ok=1
+                        remBiz=0;;
+          $'\e')
+                echo "Exiting due to ESC being pressed"
+                break;;
+          esac
+
+        else
+                ok=1;
+        fi
+}
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Function to search for an email address.
+# This will take input from user and search the records email field only for
+# a matching email address. The record number and email address are displayed
+# to the user. The user decides which email address to use by record/line number.
+#
+# Arguments :  $1 - search query
+# Returns : The chosen emal address from BuinessDetails file
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+checkRecordsForEmail() {
+
+allEmails=$(justField 5)
+echo
+echo "Email Search Results : "
+
+grep --color -i -n "$1" <<< "$allEmails"
+
+lineNumbers=$(grep -i -n "$1" <<< "$allEmails" | cut -d: -f1)
+
+if ! [ -z "$lineNumbers" ]
+then
+    	read -t90 -p "Which record number would you like to Email? : " emailNo || emailNo=1
+
+	chosenEmail=$(awk -v num="$emailNo" '{if(NR==num) print $0}' BusinessDetails <<<"$emailNo" | cut -d- -f5)
+	emailOk=1
+	ok=1
+else
+	echo
+	echo $red"No Results Found."$wht
+        emailOk=0
+	ok=1
+fi
+}
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# This function will place a list of email addresses into the "To:" field
+# of an email composition. Firstly it reads all the email addresses into
+# an array. This is then read iteratively, and stored into a string type
+# variable with comma as seperators.
+#
+# Arguments : None
+# Returns : combined varialbe containing list of all emails in BusinessDetails
+ 
+# Ref: markneedham.com/blog/2017/06/23/shell-create-a-comma-seperated-string
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+sendEmailToAll() {
+
+allEmails=$(justField 5)
+
+while read in;
+  do
+  	array=( "${array[@]}" "$in" ) 
+  done <<< $allEmails
+
+combined=""
+i=0
+
+while [ $i -lt ${#array[@]} ]
+  do
+	combined="${combined}${combined:+,}${array[$i]}"
+	i=`expr $i + 1`
+  done
+
+}
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# Function to attach a file to an email. It asks the user to enter the 
+# location of the file, and checks it using the '-r' command. This ensures
+# it is at specificed location and is readable by the user.
+#
+# Arguments : None
+# Return : Location of file to be attached
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+attachFile() {
+
+read -t60 -p "Would you like to attach a file? " attach || attach="/home"
+                case $attach in
+                [Yy]*)
+                        read -t60 -p "File Location : " fileLoc
+                        if [ -r "${fileLoc}" ]
+                        then
+                            echo "File located and attached"
+                            attachFile=1
+                            ok=1
+                            emailOk=1
+                        else
+                            echo "File Not Found"
+                            ok=0
+                        fi;;
+                [Nn]*)
+                        ok=1;;
+                esac
+}
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Function to display the choices made by the user to the screen.
+#
+# Arguments :   $1 - variable attachFile which is only set to 1 if a file 
+#		     is to be attached 
+#		$2 - variable chosenEmail which is the address(es) to send
+#		$3 - the file location of attachment
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+attachChoice() {
+
+if [ $1 = "0" ]
+        then
+                echo "You have chosen to email : "$red"$2"$wht
+                echo
+                mail "$2"
+        else
+                echo "You have chosen to email : "$red"$2"$wht
+                echo
+                echo "You have attached : "$red"$3"$wht
+                echo
+                mail -A "$3" "$2"
+        fi
+
+}
+

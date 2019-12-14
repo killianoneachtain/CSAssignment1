@@ -1,0 +1,81 @@
+#!/bin/bash
+# Author : Killian O'Neachtain (20023634)
+# This script will enable a user to search for an existing business
+# based upon the fields of the business information.
+
+. ./functions
+
+# Main script to run Search menu
+
+searchOk=0
+while [ $searchOk = "0" ]; do
+  echo
+  echo $ltyel"Search for a Business"$wht
+  echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  echo " ( NOTE : "$ltyel"EMPTY"$wht" Search Returns "$red"ALL"$wht" Records )"
+  echo
+  echo "   1. By Company Name"
+  echo "   2. By Contact Name"
+  echo "   3. By Postal Address"
+  echo "   4. By Phone Number"
+  echo "   5. By E-mail Address"
+  echo "   6. "$red"EXIT TO MAIN MENU"$wht
+  echo
+  read -t90 -p "Please Enter Your Choice : " searchChoice || searchChoice=6
+
+  case $searchChoice in
+  1)
+	echo
+	echo $ltyel"Search by Company Name"$wht
+	echo "~~~~~~~~~~~~~~~~~~~~~~"
+	read -t90 -p "Please Enter the Company you wish to search for (Max 3 Fields) :" searchCompany1 searchCompany2 searchCompany3
+	if [ -z "$searchCompany2" ] && [ -z "$searchCompany3" ];
+	then
+		searchCompany=$searchCompany1
+	elif [ -z "$searchCompany3" ];
+	then
+		searchCompany=$searchCompany1" "$searchCompany2
+	else
+		searchCompany=$searchCompany1" "$searchCompany2" "$searchCompany3
+	fi
+	searchDisplay "$searchCompany" 1
+	searchOk=0;;
+  2)
+	echo $ltyel"Search by Contact Name"$wht
+	echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+	echo "Please Enter the Contact you wish to search for (FirstName LastName) :"
+	read searchContact1 searchContact2
+	if [ -z "$searchContact2" ]
+	then
+		searchContact=$searchContact1
+	else
+		searchContact=$searchContact1" "$searchContact2
+	fi
+	searchDisplay "$searchContact" 2
+	searchOk=0;;
+  3)
+	read -t90 -p $ltyel"Search by Postal Address :  "$wht searchAddress || searchAddress=""
+	searchDisplay "$searchAddress" 3
+	searchOk=0;;
+  4)
+	read -t9 -p $ltyel"Search by Contact Number :  "$wht searchNumber || searchNumber=12346789
+	numbersOnly $searchNumber
+	searchDisplay "$searchNumber" 4
+	searchOk=0;;
+  5)
+	read -t90 -p $ltyel"Search by E-mail Address :   "$wht searchEmail || searchEmail="me@you.com"
+	searchDisplay "$searchEmail" 5
+	searchOk=0;;
+  6)
+	echo
+	echo $red"Exiting the Search Menu."$wht
+	echo
+	searchOk=1
+	break;;
+  *)
+	echo
+	echo "Please Choose a "$red"VALID"$wht" number! ( 1 - 6 )"
+	echo
+	searchOk=0;;
+  esac
+done
