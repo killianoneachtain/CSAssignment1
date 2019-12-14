@@ -6,7 +6,6 @@ Individual Assignment
 
 Shell Programming
 
-
 Background
 A Linux-based software tool is required to allow a local company to keep track of all of its
 business contacts. The owner is particularly interested in keeping track of each business name, contact
@@ -21,10 +20,13 @@ This tool should also provide the user with the ability to e-mail
       (2) all of the contacts listed in the address book with details of upcoming sales or discount offers etc.
 
 
-Assignment
-
-Develop a "menu driven" shell program that will allow the user to interactively update (i.e.
-add, remove), search and list all their business contacts information, which is stored locally
-in a file called BusinessDetails.
-
 See Assignment-Specification.pdf
+
+To RUN:
+      1. Download all files to same directory. (NOTE: BusinessDetails is optional. It currently has data, but if you would like to create your own, it can be omitted/deleted.)
+      2. Open a command prompt / terminal.
+      3. Ensure you have RWX privileges for all files. (chmod 755 xxx)
+      4. To run, type command : ./Menu
+      
+ 
+            
