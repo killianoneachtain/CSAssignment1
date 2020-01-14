@@ -1,4 +1,4 @@
-# CSAssignment1
+# Contact Organiser
 
 A college project with the following specifications. 
 
