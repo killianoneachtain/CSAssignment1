@@ -4,7 +4,7 @@ A college project with the following specifications.
 
 Individual Assignment
 
-Shell Programming
+**Shell Programming**
 
 Background
 A Linux-based software tool is required to allow a local company to keep track of all of its
@@ -23,10 +23,10 @@ This tool should also provide the user with the ability to e-mail
 See Assignment-Specification.pdf
 
 To RUN:
-      1. Download all files to same directory. (NOTE: BusinessDetails is optional. It currently has data, but if you would like to create your own, it can be omitted/deleted.)
-      2. Open a command prompt / terminal.
-      3. Ensure you have RWX privileges for all files. (chmod 755 xxx)
-      4. To run, type command : ./Menu
+1. Download all files to same directory. (NOTE: BusinessDetails is optional. It currently has data, but if you would like to create your own, it can be omitted/deleted.)
+2. Open a command prompt / terminal.
+3. Ensure you have RWX privileges for all files. (chmod 755 xxx)
+4. To run, type command : ./Menu
       
  
             
