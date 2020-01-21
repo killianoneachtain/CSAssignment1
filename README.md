@@ -21,7 +21,7 @@ This tool should also provide the user with the ability to e-mail
       (2) all of the contacts listed in the address book with details of upcoming sales or discount offers etc.
 
 
-See [Assignment Specification](/Assignment-Specification.pdf)
+See [Assignment Specification](https://github.com/killianoneachtain/ContactOrganiser/blob/master/Assessment-Specification.pdf)
 
 [YouTube Presentation](https://www.youtube.com/watch?v=kwtgboVPtxk)
 
