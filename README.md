@@ -1,6 +1,5 @@
 # Contact Organiser
 
- [YouTube Presentation](https://www.youtube.com/watch?v=kwtgboVPtxk)
 
 A college project with the following specifications. 
 
@@ -22,7 +21,9 @@ This tool should also provide the user with the ability to e-mail
       (2) all of the contacts listed in the address book with details of upcoming sales or discount offers etc.
 
 
-See Assignment-Specification.pdf
+See [Assignment Specification](Assignment-Specification.pdf)
+
+[YouTube Presentation](https://www.youtube.com/watch?v=kwtgboVPtxk)
 
 To RUN:
 1. Download all files to same directory. (NOTE: BusinessDetails is optional. It currently has data, but if you would like to create your own, it can be omitted/deleted.)
