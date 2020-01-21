@@ -21,7 +21,7 @@ This tool should also provide the user with the ability to e-mail
       (2) all of the contacts listed in the address book with details of upcoming sales or discount offers etc.
 
 
-See [Assignment Specification](Assignment-Specification.pdf)
+See [Assignment Specification](/Assignment-Specification.pdf)
 
 [YouTube Presentation](https://www.youtube.com/watch?v=kwtgboVPtxk)
 
@@ -30,8 +30,3 @@ To RUN:
 2. Open a command prompt / terminal.
 3. Ensure you have RWX privileges for all files. (chmod 755 xxx)
 4. To run, type command : ./Menu
-      
- 
- 
-
-            
